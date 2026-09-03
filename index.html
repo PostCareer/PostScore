@@ -23,7 +23,7 @@
             padding: 25px;
             border-radius: 16px;
             box-shadow: 0 8px 20px rgba(0,77,37,0.12);
-            max-width: 420px;
+            max-width: 440px;
             width: 100%;
             border-top: 6px solid #007a3d;
         }
@@ -41,9 +41,14 @@
             display: flex;
             justify-content: space-between;
             font-weight: bold;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             color: #2d3748;
             font-size: 15px;
+        }
+        .sub-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 6px;
         }
         .weight-tag {
             color: #007a3d;
@@ -81,6 +86,22 @@
             color: #005a2b;
             margin: 5px 0;
         }
+        .target-box {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: #fff3cd;
+            border-radius: 8px;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .target-score {
+            color: #d9534f;
+            font-size: 18px;
+            text-decoration: underline;
+        }
         .sub-text {
             font-size: 12px;
             color: #5f6368;
@@ -93,7 +114,8 @@
     <h2>晉升考試總成績試算器</h2>
     
     <div class="input-group">
-        <label for="exam">筆試／考試成績 (4科平均) <span class="weight-tag">占 60%</span></label>
+        <label for="exam">筆試成績四科平均 <span class="weight-tag">占 60%</span></label>
+        <div class="sub-label">（含國文作文60%及民法申論50%之總平均）</div>
         <input type="number" id="exam" placeholder="請輸入 0-100 分" min="0" max="100" oninput="calculateScore()">
     </div>
 
@@ -122,6 +144,11 @@
         <div class="result-score" id="totalScore">0.00</div>
         <div class="sub-text">（即時計算，四捨五入至小數點後兩位）</div>
     </div>
+
+    <div class="target-box" id="targetBox">
+        依照上次錄取分數 70.15 來計算：<br>
+        您的筆試平均需要 <span class="target-score" id="neededExam">--</span> 分才能上榜
+    </div>
 </div>
 
 <script>
@@ -132,9 +159,7 @@
         const certificate = parseFloat(document.getElementById('certificate').value) || 0;
         const seniority = parseFloat(document.getElementById('seniority').value) || 0;
 
-        // 採計邏輯：
-        // 前三項按比例換算：(筆試*0.60) + (考績*0.22) + (主管*0.08)
-        // 證照與年資：直接將分數加進總分（最高各 5 分）
+        // 計算總分
         const total = (exam * 0.60) + 
                       (performance * 0.22) + 
                       (supervisor * 0.08) + 
@@ -142,7 +167,24 @@
                       seniority;
 
         document.getElementById('totalScore').innerText = total.toFixed(2);
+
+        // 倒推上榜（70.15）所需的筆試四科平均分數
+        const targetTotal = 70.15;
+        const nonExamScore = (performance * 0.22) + (supervisor * 0.08) + certificate + seniority;
+        const neededExamScore = (targetTotal - nonExamScore) / 0.60;
+
+        const neededElem = document.getElementById('neededExam');
+        if (neededExamScore <= 0) {
+            neededElem.innerText = "0（目前分項已達標）";
+        } else if (neededExamScore > 100) {
+            neededElem.innerText = neededExamScore.toFixed(2) + "（需再提升其他加分項目）";
+        } else {
+            neededElem.innerText = neededExamScore.toFixed(2);
+        }
     }
+
+    // 初始化計算
+    calculateScore();
 </script>
 
 </body>
