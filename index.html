@@ -93,28 +93,28 @@
     <h2>晉升考試總成績試算器</h2>
     
     <div class="input-group">
-        <label for="exam">筆試／考試成績 <span class="weight-tag">占 60%</span></label>
-        <input type="number" id="exam" placeholder="請輸入分數 (0-100)" min="0" max="100" oninput="calculateScore()">
+        <label for="exam">筆試／考試成績 (4科平均) <span class="weight-tag">占 60%</span></label>
+        <input type="number" id="exam" placeholder="請輸入 0-100 分" min="0" max="100" oninput="calculateScore()">
     </div>
 
     <div class="input-group">
         <label for="performance">考績得分 <span class="weight-tag">占 22%</span></label>
-        <input type="number" id="performance" placeholder="請輸入分數 (0-100)" min="0" max="100" oninput="calculateScore()">
+        <input type="number" id="performance" placeholder="請輸入 0-100 分" min="0" max="100" oninput="calculateScore()">
     </div>
 
     <div class="input-group">
         <label for="supervisor">主管加分 <span class="weight-tag">占 8%</span></label>
-        <input type="number" id="supervisor" placeholder="請輸入分數 (0-100)" min="0" max="100" oninput="calculateScore()">
+        <input type="number" id="supervisor" placeholder="請輸入 0-100 分" min="0" max="100" oninput="calculateScore()">
     </div>
 
     <div class="input-group">
-        <label for="certificate">專業證照 <span class="weight-tag">占 5%</span></label>
-        <input type="number" id="certificate" placeholder="請輸入分數 (0-100)" min="0" max="100" oninput="calculateScore()">
+        <label for="certificate">專業證照 <span class="weight-tag">直加最高 5 分</span></label>
+        <input type="number" id="certificate" placeholder="請輸入 0-5 分" min="0" max="5" oninput="calculateScore()">
     </div>
 
     <div class="input-group">
-        <label for="seniority">年資得分 <span class="weight-tag">占 5%</span></label>
-        <input type="number" id="seniority" placeholder="請輸入分數 (0-100)" min="0" max="100" oninput="calculateScore()">
+        <label for="seniority">年資得分 <span class="weight-tag">直加最高 5 分</span></label>
+        <input type="number" id="seniority" placeholder="請輸入 0-5 分" min="0" max="5" oninput="calculateScore()">
     </div>
 
     <div class="result-box">
@@ -132,11 +132,14 @@
         const certificate = parseFloat(document.getElementById('certificate').value) || 0;
         const seniority = parseFloat(document.getElementById('seniority').value) || 0;
 
+        // 採計邏輯：
+        // 前三項按比例換算：(筆試*0.60) + (考績*0.22) + (主管*0.08)
+        // 證照與年資：直接將分數加進總分（最高各 5 分）
         const total = (exam * 0.60) + 
                       (performance * 0.22) + 
                       (supervisor * 0.08) + 
-                      (certificate * 0.05) + 
-                      (seniority * 0.05);
+                      certificate + 
+                      seniority;
 
         document.getElementById('totalScore').innerText = total.toFixed(2);
     }
