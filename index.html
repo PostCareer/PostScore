@@ -118,18 +118,18 @@
     </div>
 
     <div class="input-group">
+        <label for="engScore">英文得分 <span class="weight-tag">滿分 100</span></label>
+        <input type="number" id="engScore" placeholder="請輸入 0-100 分" min="0" max="100" oninput="calculateScore()">
+    </div>
+
+    <div class="input-group">
         <label for="civChoice">民法選擇題得分 <span class="weight-tag">滿分 50</span></label>
         <input type="number" id="civChoice" placeholder="請輸入 0-50 分" min="0" max="50" oninput="calculateScore()">
     </div>
 
     <div class="input-group">
-        <label for="sub3">專業科目(一)得分 <span class="weight-tag">滿分 100</span></label>
-        <input type="number" id="sub3" placeholder="請輸入 0-100 分" min="0" max="100" oninput="calculateScore()">
-    </div>
-
-    <div class="input-group">
-        <label for="sub4">專業科目(二)得分 <span class="weight-tag">滿分 100</span></label>
-        <input type="number" id="sub4" placeholder="請輸入 0-100 分" min="0" max="100" oninput="calculateScore()">
+        <label for="postLaw">郵政法得分 <span class="weight-tag">滿分 100</span></label>
+        <input type="number" id="postLaw" placeholder="請輸入 0-100 分" min="0" max="100" oninput="calculateScore()">
     </div>
 
     <div class="section-title">二、平時與加分項目</div>
@@ -156,17 +156,17 @@
     </div>
 
     <div class="target-box">
-        依照112年的目標分數70.15分，您的作文跟申論需要 <span class="target-score" id="neededEssay">--</span> 分才能錄取
-        <span class="sub-text">（此為作文與申論折算百分制後之平均目標分）</span>
+        依照112年的目標分數70.15分，您的作文跟申論總共需要 <span class="target-score" id="neededEssay">--</span> 分才能錄取
+        <span class="sub-text">（作文滿分 60 + 申論滿分 50，總分共 110 分）</span>
     </div>
 </div>
 
 <script>
     function calculateScore() {
         const chiChoice = parseFloat(document.getElementById('chiChoice').value) || 0;
+        const engScore = parseFloat(document.getElementById('engScore').value) || 0;
         const civChoice = parseFloat(document.getElementById('civChoice').value) || 0;
-        const sub3 = parseFloat(document.getElementById('sub3').value) || 0;
-        const sub4 = parseFloat(document.getElementById('sub4').value) || 0;
+        const postLaw = parseFloat(document.getElementById('postLaw').value) || 0;
 
         const performance = parseFloat(document.getElementById('performance').value) || 0;
         const supervisor = parseFloat(document.getElementById('supervisor').value) || 0;
@@ -174,8 +174,8 @@
         const seniority = parseFloat(document.getElementById('seniority').value) || 0;
 
         // 計算已知項目的總得分貢獻（換算至最終總算定分數）
-        // 筆試 4 科，每科占總分數 60% / 4 = 15%
-        const knownExamContribution = (chiChoice * 0.15) + (civChoice * 0.15) + (sub3 * 0.15) + (sub4 * 0.15);
+        // 筆試總分400分，折算總成績60%，即筆試每1分 = 0.15分總成績
+        const knownExamContribution = (chiChoice + engScore + civChoice + postLaw) * 0.15;
         const otherContribution = (performance * 0.22) + (supervisor * 0.08) + certificate + seniority;
         
         const currentKnownTotal = knownExamContribution + otherContribution;
@@ -184,18 +184,17 @@
         const targetTotal = 70.15;
         const neededGap = targetTotal - currentKnownTotal;
 
-        // 作文(60%) 與 申論(50%) 在筆試中的權重為 (60% + 50%) / 400 = 16.5%
-        // 折算至總成績的權重為 16.5% * 0.6 = 0.165
-        const neededEssayPercent = neededGap / 0.165;
+        // 非選擇題（作文60 + 申論50 = 110分），每1分可換算 0.15 分總成績
+        const neededEssayRawScore = neededGap / 0.15;
 
         const neededElem = document.getElementById('neededEssay');
 
         if (neededGap <= 0) {
             neededElem.innerText = "0（已達標）";
-        } else if (neededEssayPercent > 100) {
-            neededElem.innerText = neededEssayPercent.toFixed(2) + "（超出滿分）";
+        } else if (neededEssayRawScore > 110) {
+            neededElem.innerText = neededEssayRawScore.toFixed(2) + "（超出滿分 110）";
         } else {
-            neededElem.innerText = neededEssayPercent.toFixed(2);
+            neededElem.innerText = neededEssayRawScore.toFixed(2);
         }
     }
 
