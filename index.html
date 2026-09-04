@@ -88,6 +88,19 @@
             text-align: center;
             line-height: 1.6;
         }
+        /* 新增：112年舊制的藍綠色調對比框 */
+        .target-box-old {
+            margin-top: 12px;
+            padding: 16px;
+            background-color: #e2f0d9;
+            border-radius: 10px;
+            border: 1px solid #c8e6c9;
+            color: #1e4620;
+            font-size: 15px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.6;
+        }
         .target-score {
             color: #d9534f;
             font-size: 24px;
@@ -155,9 +168,16 @@
         <input type="number" id="seniority" placeholder="請輸入 0-5 分" min="0" max="5" oninput="calculateScore()">
     </div>
 
+    <!-- 原有框框：現行新制算式 -->
     <div class="target-box">
-        依照112年的目標分數70.15分，您的作文跟申論總共需要 <span class="target-score" id="neededEssay">--</span> 分才能錄取
+        依照現行目標分數70.15分，您的作文跟申論總共需要 <span class="target-score" id="neededEssay">--</span> 分才能錄取
         <span class="sub-text">（作文滿分 60 + 申論滿分 50，總分共 110 分）</span>
+    </div>
+
+    <!-- 新增框框：112年計分標準算式（考績30%、主管0%） -->
+    <div class="target-box-old">
+        依照112年的計分標準，您還需要 <span class="target-score" id="neededEssay112">--</span> 分才會錄取
+        <span class="sub-text">（考績調整為 30%、主管加分 0% 計算）</span>
     </div>
 </div>
 
@@ -173,18 +193,16 @@
         const certificate = parseFloat(document.getElementById('certificate').value) || 0;
         const seniority = parseFloat(document.getElementById('seniority').value) || 0;
 
-        // 計算已知項目的總得分貢獻（換算至最終總算定分數）
-        // 筆試總分400分，折算總成績60%，即筆試每1分 = 0.15分總成績
+        // 1. 通用筆試已知選擇題貢獻 (每1分原始分 = 0.15分總成績)
         const knownExamContribution = (chiChoice + engScore + civChoice + postLaw) * 0.15;
-        const otherContribution = (performance * 0.22) + (supervisor * 0.08) + certificate + seniority;
-        
-        const currentKnownTotal = knownExamContribution + otherContribution;
-
-        // 112年錄取目標為 70.15
         const targetTotal = 70.15;
-        const neededGap = targetTotal - currentKnownTotal;
 
-        // 非選擇題（作文60 + 申論50 = 110分），每1分可換算 0.15 分總成績
+        // -------------------------------------------------------------
+        // A. 現行新制計算 (考績 22% + 主管 8% + 證照 + 年資)
+        // -------------------------------------------------------------
+        const currentOtherContribution = (performance * 0.22) + (supervisor * 0.08) + certificate + seniority;
+        const currentKnownTotal = knownExamContribution + currentOtherContribution;
+        const neededGap = targetTotal - currentKnownTotal;
         const neededEssayRawScore = neededGap / 0.15;
 
         const neededElem = document.getElementById('neededEssay');
@@ -195,6 +213,24 @@
             neededElem.innerText = neededEssayRawScore.toFixed(2) + "（超出滿分 110）";
         } else {
             neededElem.innerText = neededEssayRawScore.toFixed(2);
+        }
+
+        // -------------------------------------------------------------
+        // B. 112年舊制計算 (考績 30% + 主管 0% + 證照 + 年資)
+        // -------------------------------------------------------------
+        const old112OtherContribution = (performance * 0.30) + (supervisor * 0) + certificate + seniority;
+        const old112KnownTotal = knownExamContribution + old112OtherContribution;
+        const neededGap112 = targetTotal - old112KnownTotal;
+        const neededEssayRawScore112 = neededGap112 / 0.15;
+
+        const neededElem112 = document.getElementById('neededEssay112');
+
+        if (neededGap112 <= 0) {
+            neededElem112.innerText = "0（已達標）";
+        } else if (neededEssayRawScore112 > 110) {
+            neededElem112.innerText = neededEssayRawScore112.toFixed(2) + "（超出滿分 110）";
+        } else {
+            neededElem112.innerText = neededEssayRawScore112.toFixed(2);
         }
     }
 
