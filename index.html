@@ -88,7 +88,6 @@
             text-align: center;
             line-height: 1.6;
         }
-        /* 新增：112年舊制的藍綠色調對比框 */
         .target-box-old {
             margin-top: 12px;
             padding: 16px;
@@ -154,8 +153,8 @@
     </div>
 
     <div class="input-group">
-        <label for="supervisor">主管加分 <span class="weight-tag">占 8%</span></label>
-        <input type="number" id="supervisor" placeholder="請輸入 0-100 分" min="0" max="100" oninput="calculateScore()">
+        <label for="supervisor">主管加分 <span class="weight-tag">直加最高 8 分</span></label>
+        <input type="number" id="supervisor" placeholder="請輸入 0-8 分" min="0" max="8" oninput="calculateScore()">
     </div>
 
     <div class="input-group">
@@ -168,13 +167,13 @@
         <input type="number" id="seniority" placeholder="請輸入 0-5 分" min="0" max="5" oninput="calculateScore()">
     </div>
 
-    <!-- 原有框框：現行新制算式 -->
+    <!-- 黃色框框：改為「依照112年最低錄取分數」 -->
     <div class="target-box">
-        依照現行目標分數70.15分，您的作文跟申論總共需要 <span class="target-score" id="neededEssay">--</span> 分才能錄取
+        依照112年最低錄取分數70.15分，您的作文跟申論總共需要 <span class="target-score" id="neededEssay">--</span> 分才能錄取
         <span class="sub-text">（作文滿分 60 + 申論滿分 50，總分共 110 分）</span>
     </div>
 
-    <!-- 新增框框：112年計分標準算式（考績30%、主管0%） -->
+    <!-- 綠色框框：舊制計算（考績30%、主管加分0%） -->
     <div class="target-box-old">
         依照112年的計分標準，您還需要 <span class="target-score" id="neededEssay112">--</span> 分才會錄取
         <span class="sub-text">（考績調整為 30%、主管加分 0% 計算）</span>
@@ -193,14 +192,14 @@
         const certificate = parseFloat(document.getElementById('certificate').value) || 0;
         const seniority = parseFloat(document.getElementById('seniority').value) || 0;
 
-        // 1. 通用筆試已知選擇題貢獻 (每1分原始分 = 0.15分總成績)
+        // 通用筆試已知選擇題貢獻 (每1分原始分 = 0.15分總成績)
         const knownExamContribution = (chiChoice + engScore + civChoice + postLaw) * 0.15;
         const targetTotal = 70.15;
 
         // -------------------------------------------------------------
-        // A. 現行新制計算 (考績 22% + 主管 8% + 證照 + 年資)
+        // A. 現行制度計算 (考績 22% + 主管直加 + 證照直加 + 年資直加)
         // -------------------------------------------------------------
-        const currentOtherContribution = (performance * 0.22) + (supervisor * 0.08) + certificate + seniority;
+        const currentOtherContribution = (performance * 0.22) + supervisor + certificate + seniority;
         const currentKnownTotal = knownExamContribution + currentOtherContribution;
         const neededGap = targetTotal - currentKnownTotal;
         const neededEssayRawScore = neededGap / 0.15;
@@ -216,9 +215,9 @@
         }
 
         // -------------------------------------------------------------
-        // B. 112年舊制計算 (考績 30% + 主管 0% + 證照 + 年資)
+        // B. 112年舊制計算 (考績 30% + 主管0 + 證照直加 + 年資直加)
         // -------------------------------------------------------------
-        const old112OtherContribution = (performance * 0.30) + (supervisor * 0) + certificate + seniority;
+        const old112OtherContribution = (performance * 0.30) + 0 + certificate + seniority;
         const old112KnownTotal = knownExamContribution + old112OtherContribution;
         const neededGap112 = targetTotal - old112KnownTotal;
         const neededEssayRawScore112 = neededGap112 / 0.15;
